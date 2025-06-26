@@ -91,7 +91,6 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Iterable<PostDto> findPostsByTag(Set<String> tags) {
-        //TODO
         return null;
     }
 
