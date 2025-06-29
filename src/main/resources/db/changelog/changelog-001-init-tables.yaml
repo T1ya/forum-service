@@ -1,0 +1,120 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-student
+      author: ilia
+      changes:
+        - createTable:
+            tableName: posts
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: author
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: TIMESTAMP
+                  constraints:
+                    nullable:
+              - column:
+                  name: likes
+                  type: INT
+                  defaultValue: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 02-create-comments
+      author: ilia
+      changes:
+        - createTable:
+            tableName: comments
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+              - column:
+                  name: date_created
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: likes
+                  type: INT
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: post_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_comment_post
+  - changeSet:
+      id: 03-create-tags
+      author: ilia
+      changes:
+        - createTable:
+            tableName: tags
+            columns:
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+  - changeSet:
+      id: 04-create-posts-tags
+      author: ilia
+      changes:
+        - createTable:
+            tableName: post_tags
+            columns:
+              - column:
+                  name: posts_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_posts_tags_posts
+                    references: posts(id)
+              - column:
+                  name: tags_name
+                  type: VARCHAR(255)
+                  constraints:
+                    foreignKeyName: fk_posts_tags_tags
+                    references: tags(id)
+                    nullable: false
+        - addPrimaryKey:
+            tableName: post_tags
+            columnNames: posts_id, tags_name
+            constraintName: pk_posts_tags

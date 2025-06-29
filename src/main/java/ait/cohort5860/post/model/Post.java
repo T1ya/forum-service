@@ -16,20 +16,31 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="post")
+@Table(name="posts")
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
+    @Column(name = "title")
     @Setter
     private String title;
+    @Column(name = "content", columnDefinition = "TEXT")
     @Setter
     private String content;
+    @Column(name = "author")
     @Setter
     private String author;
+    @Column(name = "date_created")
     private final LocalDateTime dateCreated = LocalDateTime.now();
     @ManyToMany
+    @JoinTable(
+            name = "post_tags",
+            joinColumns = @JoinColumn(name = "posts_id"),
+            inverseJoinColumns = @JoinColumn(name = "tags_name")
+    )
     private Set<Tag> tags = new HashSet<>();
+    @Column(name = "likes")
     private int likes;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "post", orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();

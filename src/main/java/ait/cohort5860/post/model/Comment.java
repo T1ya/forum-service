@@ -16,13 +16,19 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
+    @Column(name = "user_name")
     private String userName;
+    @Column(name = "message")
     private String message;
+    @Column(name = "date_created")
     private LocalDateTime dateCreated = LocalDateTime.now();
+    @Column(name = "likes")
     private long likes;
     @Setter
     @ManyToOne
+    @JoinColumn(name = "post_id")
     private Post post;
 
     public Comment(String user, String message) {

@@ -48,6 +48,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public void addLike(long postId) {
         Post post = postRepository.findById(postId).orElseThrow(PostDtoException::new);
         post.addLikes();
@@ -55,10 +56,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto updatePost(long id, NewPostDto newPostDto) {
         Post post = postRepository.findById(id).orElseThrow(PostDtoException::new);
-        post.setTitle(newPostDto.getTitle());
-        post.setContent(newPostDto.getContent());
+        if(newPostDto.getTitle()!= null) post.setTitle(newPostDto.getTitle());
+        if(newPostDto.getContent()!= null) post.setContent(newPostDto.getContent());
         Set<String> tags = newPostDto.getTags();
         // Handle tags
         post.getTags().clear();
@@ -68,11 +70,12 @@ public class PostServiceImpl implements PostService {
                 post.addTag(tag);
             }
         }
-        postRepository.save(post);
         return modelMapper.map(post, PostDto.class);
     }
 
+
     @Override
+    @Transactional
     public PostDto addComment(long postId, String author, AddCommentDto addCommentDto) {
         Post post = postRepository.findById(postId).orElseThrow(PostDtoException::new);
         Comment comment = new Comment(author, addCommentDto.getComment());
@@ -82,6 +85,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional
     public PostDto deletePost(long postId) {
         Post post = postRepository.findById(postId).orElseThrow(PostDtoException::new);
         PostDto postDto = modelMapper.map(post, PostDto.class);
@@ -90,23 +94,24 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Iterable<PostDto> findPostsByTag(Set<String> tags) {
-        //realisation needed
-        return null;
+        return postRepository.findDistinctByTagsIgnoreCase_NameIn(tags)
+                .map(post -> modelMapper.map(post, PostDto.class))
+                .toList();
     }
 
     @Override
     public Iterable<PostDto> findPostsByPeriod(LocalDate start, LocalDate end) {
         return postRepository.findAllByDateCreatedBetween(start.atStartOfDay(),end.plusDays(1).atStartOfDay())
-                .stream()
                 .map(post -> modelMapper.map(post, PostDto.class)).toList();
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Iterable<PostDto> getPostsByAuthor(String author) {
-        return postRepository.findAllByAuthor(author)
-                .stream()
+        return postRepository.findAllByAuthorIgnoreCase(author)
                 .map(post -> modelMapper.map(post, PostDto.class)).toList();
     }
 }
