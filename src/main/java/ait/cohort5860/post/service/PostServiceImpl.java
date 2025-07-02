@@ -9,7 +9,9 @@ import ait.cohort5860.post.dto.exceptions.PostDtoException;
 import ait.cohort5860.post.model.Comment;
 import ait.cohort5860.post.model.Post;
 import ait.cohort5860.post.model.Tag;
+import ait.cohort5860.post.service.logging.PostLogger;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j(topic = "Post Service")
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ModelMapper modelMapper;
@@ -26,6 +29,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
+    @PostLogger
     public PostDto addPost(String author, NewPostDto newPostDto) {
         Post post = new Post(newPostDto.getTitle(), newPostDto.getContent(), author);
         Set<String> tags = newPostDto.getTags();
@@ -41,15 +45,19 @@ public class PostServiceImpl implements PostService {
         return modelMapper.map(post, PostDto.class);
     }
 
+
     @Override
-    public PostDto findPostById(long postId) {
+    @PostLogger
+    public PostDto findPostById(Long postId) {
+        log.info("Finding post with id {}", postId);
         Post post = postRepository.findById(postId).orElseThrow(PostDtoException::new);
         return modelMapper.map(post, PostDto.class);
     }
 
     @Override
     @Transactional
-    public void addLike(long postId) {
+    @PostLogger
+    public void addLike(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(PostDtoException::new);
         post.addLikes();
         postRepository.save(post);
@@ -57,6 +65,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
+    @PostLogger
     public PostDto updatePost(long id, NewPostDto newPostDto) {
         Post post = postRepository.findById(id).orElseThrow(PostDtoException::new);
         if(newPostDto.getTitle()!= null) post.setTitle(newPostDto.getTitle());
@@ -102,6 +111,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Iterable<PostDto> findPostsByPeriod(LocalDate start, LocalDate end) {
         return postRepository.findAllByDateCreatedBetween(start.atStartOfDay(),end.plusDays(1).atStartOfDay())
                 .map(post -> modelMapper.map(post, PostDto.class)).toList();
@@ -110,7 +120,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Iterable<PostDto> getPostsByAuthor(String author) {
+    public Iterable<PostDto> findPostsByAuthor(String author) {
         return postRepository.findAllByAuthorIgnoreCase(author)
                 .map(post -> modelMapper.map(post, PostDto.class)).toList();
     }

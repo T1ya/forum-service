@@ -112,7 +112,7 @@ databaseChangeLog:
                   type: VARCHAR(255)
                   constraints:
                     foreignKeyName: fk_posts_tags_tags
-                    references: tags(id)
+                    references: tags(name)
                     nullable: false
         - addPrimaryKey:
             tableName: post_tags

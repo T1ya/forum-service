@@ -11,9 +11,9 @@ public interface PostService {
 
     PostDto addPost(String author, NewPostDto newPostDto);
 
-    PostDto findPostById(long postId);
+    PostDto findPostById(Long postId);
 
-    void addLike(long postId);
+    void addLike(Long postId);
 
     PostDto updatePost(long id, NewPostDto newPostDto);
 
@@ -25,5 +25,6 @@ public interface PostService {
 
     Iterable<PostDto> findPostsByPeriod(LocalDate start, LocalDate end);
 
-    Iterable<PostDto> getPostsByAuthor(String author);
+    Iterable<PostDto> findPostsByAuthor(String author);
 }
+
