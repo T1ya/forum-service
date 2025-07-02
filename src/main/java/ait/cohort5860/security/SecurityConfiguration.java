@@ -24,8 +24,8 @@ public class SecurityConfiguration {
         http.httpBasic(Customizer.withDefaults());
         http.csrf(csrf -> csrf.disable());
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/account/register", "/forum/posts/**")
-                    .permitAll()
+                .requestMatchers("/account/register").permitAll()
+                .requestMatchers("/forum/posts/**").permitAll()
                 .requestMatchers("/account/user/{login}/role/{role}")
                     .hasRole(Role.ADMINISTRATOR.name())
                 .requestMatchers(HttpMethod.PATCH, "/account/user/{login}", "/forum/post/{id}/comment/{login}")
