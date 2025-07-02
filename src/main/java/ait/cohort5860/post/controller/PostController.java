@@ -4,6 +4,7 @@ import ait.cohort5860.post.dto.AddCommentDto;
 import ait.cohort5860.post.dto.NewPostDto;
 import ait.cohort5860.post.dto.PostDto;
 import ait.cohort5860.post.service.PostService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class PostController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/post/{user}")
-    public PostDto addPost(@PathVariable String user, @RequestBody NewPostDto newPostDto) {
+    public PostDto addPost(@PathVariable String user, @RequestBody @Valid NewPostDto newPostDto) {
         return postService.addPost(user, newPostDto);
     }
 
@@ -35,12 +36,12 @@ public class PostController {
     }
 
     @PatchMapping("/post/{postId}")
-    public PostDto updatePost(@PathVariable long postId, @RequestBody NewPostDto newPostDto) {
+    public PostDto updatePost(@PathVariable long postId, @RequestBody @Valid NewPostDto newPostDto) {
         return postService.updatePost(postId, newPostDto);
     }
 
     @PatchMapping("post/{postId}/comment/{author}")
-    public PostDto addComment(@PathVariable long postId, @PathVariable String author, @RequestBody AddCommentDto addCommentDto) {
+    public PostDto addComment(@PathVariable long postId, @PathVariable String author, @RequestBody @Valid AddCommentDto addCommentDto) {
         return postService.addComment(postId, author, addCommentDto);
     }
 
