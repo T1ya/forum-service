@@ -10,18 +10,34 @@ import ait.cohort5860.accounting.dto.exception.UserExistsException;
 import ait.cohort5860.accounting.dto.exception.UserNotFoundException;
 import ait.cohort5860.accounting.model.Role;
 import ait.cohort5860.accounting.model.UserAccount;
+import ait.cohort5860.post.dto.EmailDto;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserAccountServiceImpl implements UserAccountService, CommandLineRunner {
     private final UserAccountRepository userAccountRepository;
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
+    private final SendGrid sendGrid;
+    @Value("${sendgrid.from-email}")
+    private String fromEmail;
 
     @Override
     public UserDto register(UserRegisterDto userRegisterDto) {
@@ -83,6 +99,25 @@ public class UserAccountServiceImpl implements UserAccountService, CommandLineRu
         UserAccount userAccount = userAccountRepository.findById(login).orElseThrow(UserNotFoundException::new);
         userAccount.setPassword(newPassword);
         userAccountRepository.save(userAccount);
+    }
+
+    @Override
+    public void sendEmail(EmailDto emailDto) {
+        Email from = new Email(fromEmail.trim());
+        Email to = new Email(emailDto.getTo());
+        Content content = new Content("text/plain", emailDto.getMessage());
+        Mail mail = new Mail(from, emailDto.getSubject(), to, content);
+
+        Request request = new Request();
+        try {
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sendGrid.api(request);
+            log.info("Email status: {}", response.getStatusCode());
+        } catch (IOException e) {
+            log.error("Error sending email: ", e);
+        }
     }
 
     @Override

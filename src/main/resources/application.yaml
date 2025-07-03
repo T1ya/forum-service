@@ -16,3 +16,7 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_URI}
+
+  sendgrid:
+    api-key: ${SENDGRID_API_KEY}
+    from-email: ${SENDGRID_FROM_EMAIL}
